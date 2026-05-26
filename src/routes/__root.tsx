@@ -2,6 +2,7 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { Toaster } from "@/components/ui/sonner"
 
 
 const RootLayout = () => (
@@ -16,6 +17,7 @@ const RootLayout = () => (
     </div>
     <hr />
     <Outlet />
+    <Toaster />
     <TanStackDevtools
       config={{
         position: "bottom-right",
