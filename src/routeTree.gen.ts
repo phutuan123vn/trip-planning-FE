@@ -13,6 +13,12 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TripYourTripsRouteImport } from './routes/trip/your-trips'
+import { Route as TripUpdateRouteImport } from './routes/trip/update'
+import { Route as TripCreateRouteImport } from './routes/trip/create'
+import { Route as TripTripIdRouteImport } from './routes/trip/$tripId'
+import { Route as DestinationCreateRouteImport } from './routes/destination/create'
+import { Route as DestinationDestinationIdRouteImport } from './routes/destination/$destinationId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -34,18 +40,61 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TripYourTripsRoute = TripYourTripsRouteImport.update({
+  id: '/trip/your-trips',
+  path: '/trip/your-trips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TripUpdateRoute = TripUpdateRouteImport.update({
+  id: '/trip/update',
+  path: '/trip/update',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TripCreateRoute = TripCreateRouteImport.update({
+  id: '/trip/create',
+  path: '/trip/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TripTripIdRoute = TripTripIdRouteImport.update({
+  id: '/trip/$tripId',
+  path: '/trip/$tripId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestinationCreateRoute = DestinationCreateRouteImport.update({
+  id: '/destination/create',
+  path: '/destination/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestinationDestinationIdRoute =
+  DestinationDestinationIdRouteImport.update({
+    id: '/destination/$destinationId',
+    path: '/destination/$destinationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/destination/$destinationId': typeof DestinationDestinationIdRoute
+  '/destination/create': typeof DestinationCreateRoute
+  '/trip/$tripId': typeof TripTripIdRoute
+  '/trip/create': typeof TripCreateRoute
+  '/trip/update': typeof TripUpdateRoute
+  '/trip/your-trips': typeof TripYourTripsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/destination/$destinationId': typeof DestinationDestinationIdRoute
+  '/destination/create': typeof DestinationCreateRoute
+  '/trip/$tripId': typeof TripTripIdRoute
+  '/trip/create': typeof TripCreateRoute
+  '/trip/update': typeof TripUpdateRoute
+  '/trip/your-trips': typeof TripYourTripsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +102,50 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/destination/$destinationId': typeof DestinationDestinationIdRoute
+  '/destination/create': typeof DestinationCreateRoute
+  '/trip/$tripId': typeof TripTripIdRoute
+  '/trip/create': typeof TripCreateRoute
+  '/trip/update': typeof TripUpdateRoute
+  '/trip/your-trips': typeof TripYourTripsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/signin' | '/signup'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/signin'
+    | '/signup'
+    | '/destination/$destinationId'
+    | '/destination/create'
+    | '/trip/$tripId'
+    | '/trip/create'
+    | '/trip/update'
+    | '/trip/your-trips'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/signin' | '/signup'
-  id: '__root__' | '/' | '/about' | '/signin' | '/signup'
+  to:
+    | '/'
+    | '/about'
+    | '/signin'
+    | '/signup'
+    | '/destination/$destinationId'
+    | '/destination/create'
+    | '/trip/$tripId'
+    | '/trip/create'
+    | '/trip/update'
+    | '/trip/your-trips'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/signin'
+    | '/signup'
+    | '/destination/$destinationId'
+    | '/destination/create'
+    | '/trip/$tripId'
+    | '/trip/create'
+    | '/trip/update'
+    | '/trip/your-trips'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +153,12 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
+  DestinationDestinationIdRoute: typeof DestinationDestinationIdRoute
+  DestinationCreateRoute: typeof DestinationCreateRoute
+  TripTripIdRoute: typeof TripTripIdRoute
+  TripCreateRoute: typeof TripCreateRoute
+  TripUpdateRoute: typeof TripUpdateRoute
+  TripYourTripsRoute: typeof TripYourTripsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +191,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trip/your-trips': {
+      id: '/trip/your-trips'
+      path: '/trip/your-trips'
+      fullPath: '/trip/your-trips'
+      preLoaderRoute: typeof TripYourTripsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trip/update': {
+      id: '/trip/update'
+      path: '/trip/update'
+      fullPath: '/trip/update'
+      preLoaderRoute: typeof TripUpdateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trip/create': {
+      id: '/trip/create'
+      path: '/trip/create'
+      fullPath: '/trip/create'
+      preLoaderRoute: typeof TripCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trip/$tripId': {
+      id: '/trip/$tripId'
+      path: '/trip/$tripId'
+      fullPath: '/trip/$tripId'
+      preLoaderRoute: typeof TripTripIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destination/create': {
+      id: '/destination/create'
+      path: '/destination/create'
+      fullPath: '/destination/create'
+      preLoaderRoute: typeof DestinationCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destination/$destinationId': {
+      id: '/destination/$destinationId'
+      path: '/destination/$destinationId'
+      fullPath: '/destination/$destinationId'
+      preLoaderRoute: typeof DestinationDestinationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +241,12 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
+  DestinationDestinationIdRoute: DestinationDestinationIdRoute,
+  DestinationCreateRoute: DestinationCreateRoute,
+  TripTripIdRoute: TripTripIdRoute,
+  TripCreateRoute: TripCreateRoute,
+  TripUpdateRoute: TripUpdateRoute,
+  TripYourTripsRoute: TripYourTripsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

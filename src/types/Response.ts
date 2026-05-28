@@ -15,3 +15,10 @@ export interface Response<T> {
 }
 
 export type TResponse = Response<unknown>;
+
+export interface SingleResponse<T> {
+  success: boolean;
+  data: T | null;
+  message: string;
+  error: string | null;
+}
