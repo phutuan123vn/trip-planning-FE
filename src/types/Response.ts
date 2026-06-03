@@ -6,19 +6,7 @@ export type Pagination = {
   hasPrevious: boolean;
 };
 
-export interface Response<T> {
-  success: boolean;
-  data: T[] | null;
-  message: string;
-  error: string | null;
+export interface PaginatedResponse<T> {
+  data: T[];
   pagination: Pagination;
-}
-
-export type TResponse = Response<unknown>;
-
-export interface SingleResponse<T> {
-  success: boolean;
-  data: T | null;
-  message: string;
-  error: string | null;
 }

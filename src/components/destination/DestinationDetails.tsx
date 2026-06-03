@@ -31,7 +31,7 @@ export function DestinationDetails({ destinationId }: DestinationDetailsProps) {
     );
   }
 
-  if (isError || !response?.data) {
+  if (isError || !response) {
     return (
       <div className="flex items-center justify-center h-48 text-muted-foreground">
         Destination not found.
@@ -39,7 +39,7 @@ export function DestinationDetails({ destinationId }: DestinationDetailsProps) {
     );
   }
 
-  const destination = response.data;
+  const destination = response;
   const displayImages =
     destination.images.length > 0 ? destination.images : [DEFAULT_IMAGE];
   const hasMultiple = displayImages.length > 1;

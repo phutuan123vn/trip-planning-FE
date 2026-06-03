@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MultiSelect } from "@/components/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { useDestinations } from "@/features/destinations/hooks/use-destinations";
 import { useTripDetail } from "@/features/trip/hooks/use-trips";
 import { useTripCreateStore } from "@/features/trip/stores/trip-create-store";
@@ -49,8 +49,8 @@ export function TripUpdate({
 
   // Populate form when trip data loads
   useEffect(() => {
-    if (tripResponse?.data) {
-      const trip = tripResponse.data;
+    if (tripResponse) {
+      const trip = tripResponse;
       setField("name", trip.name);
       setField("startDate", trip.startDate);
       setField("endDate", trip.endDate);
@@ -59,7 +59,7 @@ export function TripUpdate({
         trip.destinations.map((d) => d.id)
       );
     }
-  }, [tripResponse?.data]);
+  }, [tripResponse]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

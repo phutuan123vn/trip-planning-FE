@@ -1,19 +1,19 @@
 import api from "@/lib/axios";
-import type { Response, SingleResponse } from "@/types/Response";
+import type { PaginatedResponse } from "@/types/Response";
 import type { Trip } from "../types";
 
 export const getTrips = async (
   page: number,
   pageSize: number
-): Promise<Response<Trip>> => {
-  const { data } = await api.get<Response<Trip>>("/trips", {
+): Promise<PaginatedResponse<Trip>> => {
+  const { data } = await api.get<PaginatedResponse<Trip>>("/trips", {
     params: { page, pageSize },
   });
   return data;
 };
 
-export const getTripById = async (id: string): Promise<SingleResponse<Trip>> => {
-  const { data } = await api.get<SingleResponse<Trip>>(`/trips/${id}`);
+export const getTripById = async (id: string): Promise<Trip> => {
+  const { data } = await api.get<Trip>(`/trips/${id}`);
   return data;
 };
 
@@ -22,8 +22,8 @@ export const createTrip = async (input: {
   startDate: string;
   endDate: string;
   destinationIds: string[];
-}): Promise<SingleResponse<Trip>> => {
-  const { data } = await api.post<SingleResponse<Trip>>("/trips", input);
+}): Promise<Trip> => {
+  const { data } = await api.post<Trip>("/trips", input);
   return data;
 };
 
@@ -35,12 +35,11 @@ export const updateTrip = async (
     endDate: string;
     destinationIds: string[];
   }
-): Promise<SingleResponse<Trip>> => {
-  const { data } = await api.put<SingleResponse<Trip>>(`/trips/${id}`, input);
+): Promise<Trip> => {
+  const { data } = await api.put<Trip>(`/trips/${id}`, input);
   return data;
 };
 
-export const deleteTrip = async (id: string): Promise<SingleResponse<null>> => {
-  const { data } = await api.delete<SingleResponse<null>>(`/trips/${id}`);
-  return data;
+export const deleteTrip = async (id: string): Promise<void> => {
+  await api.delete(`/trips/${id}`);
 };

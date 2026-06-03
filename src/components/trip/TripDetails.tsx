@@ -94,9 +94,9 @@ export function TripDetails({ tripId }: TripDetailsProps) {
     );
   }
 
-  const trip = response?.data ?? MOCK_TRIP;
+  const trip = response ?? MOCK_TRIP;
 
-  if (isError || (!response?.data && !MOCK_TRIP)) {
+  if (isError || (!response && !MOCK_TRIP)) {
     return (
       <div className="flex items-center justify-center h-48 text-muted-foreground">
         Trip not found.

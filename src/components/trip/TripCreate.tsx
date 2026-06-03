@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { useDestinations } from "@/features/destinations/hooks/use-destinations";
 import { useTripCreateStore } from "@/features/trip/stores/trip-create-store";
 import type { TripCreateInput } from "@/features/trip/schemas/trip-create-schema";

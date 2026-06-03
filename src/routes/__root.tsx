@@ -6,9 +6,10 @@ import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AuthProvider } from "@/app/providers/auth-provider";
 
 const RootLayout = () => (
-  <>
+  <AuthProvider>
     <Header />
     <hr />
     <main className="flex min-h-screen flex-col">
@@ -31,7 +32,7 @@ const RootLayout = () => (
         },
       ]}
     />
-  </>
+  </AuthProvider>
 );
 
 

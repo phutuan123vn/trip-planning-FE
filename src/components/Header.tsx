@@ -10,10 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { env } from "@/lib/env";
+import { useAuth } from "@/app/context/AuthContext";
+import { useLogout } from "@/features/auth";
 
 export const Header: FC = () => {
-  const environment = env.MODE;
+  const { user, isAuthenticated } = useAuth();
+  const logout = useLogout();
+
   return (
     <header className="bg-gray-800 text-white p-4 flex items-center justify-between">
       <Link to="/" className="text-2xl font-bold">
@@ -21,22 +24,34 @@ export const Header: FC = () => {
       </Link>
 
       <div>
-        {environment !== "development" ? (
+        {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="text-black rounded-md">
-                Account
+                {user?.firstName ?? "Account"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuLabel>
+                {user ? `${user.firstName} ${user.lastName}` : "My Account"}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>Your Trips</DropdownMenuItem>
-                <DropdownMenuItem>Create New Trip</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/trip/your-trips">Your Trips</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/trip/create">Create New Trip</Link>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <Button variant="destructive" className="w-full text-left">
+                  <Button
+                    variant="destructive"
+                    className="w-full text-left"
+                    onClick={logout}
+                  >
                     Logout
                   </Button>
                 </DropdownMenuItem>

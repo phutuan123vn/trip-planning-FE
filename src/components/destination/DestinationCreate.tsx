@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { useCategories } from "@/features/categories/hooks/use-categories";
 import { useDestinationCreateStore } from "@/features/destinations/stores/destination-create-store";
 import type { DestinationCreateInput } from "@/features/destinations/schemas/destination-create-schema";
@@ -32,8 +32,8 @@ export function DestinationCreate({
   const { values: form, errors, setField, validate, reset } =
     useDestinationCreateStore();
   const { data: categoriesResponse, isPending: categoriesPending } = useCategories();
-  const allCategories = categoriesResponse?.data?.length
-    ? categoriesResponse.data
+  const allCategories = categoriesResponse?.length
+    ? categoriesResponse
     : MOCK_CATEGORIES;
 
   useEffect(() => {
