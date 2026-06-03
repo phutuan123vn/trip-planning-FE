@@ -3,7 +3,7 @@ import { env } from "@/lib/env";
 import { getTokenCookie } from "@/lib/cookie";
 
 const api = axios.create({
-  baseURL: env.VITE_API_URL,
+  baseURL: `${env.VITE_API_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

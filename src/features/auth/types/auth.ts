@@ -1,9 +1,11 @@
+import type { PaginatedResponse } from "@/types/Response";
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: "user" | "admin";
+  role: "USER" | "ADMIN";
 }
 
 export interface LoginPayload {
@@ -19,8 +21,16 @@ export interface RegisterPayload {
 }
 
 
-export interface LoginResponse {
+export interface LoginData {
   user: User;
   accessToken: string;
   tokenType: string;
+}
+
+
+export type LoginResponse = PaginatedResponse<LoginData>;
+
+export interface VerifyEmailPayload {
+  token: string;
+  email: string;
 }

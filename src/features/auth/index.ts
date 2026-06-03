@@ -1,11 +1,11 @@
 // Types
-export type { User, LoginPayload, RegisterPayload, LoginResponse } from "./types/auth";
+export type { User, LoginPayload, RegisterPayload, LoginResponse, VerifyEmailPayload } from "./types/auth";
 
 // Context
 export { useAuth } from "@/app/context/AuthContext";
 
 // API
-export { login, register, getCurrentUser } from "./api/auth-api";
+export { login, register, getCurrentUser, verifyEmail } from "./api/auth-api";
 
 // Hooks
 export { useLogin } from "./hooks/use-login";

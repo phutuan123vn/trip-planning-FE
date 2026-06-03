@@ -4,13 +4,20 @@ import type {
   LoginResponse,
   RegisterPayload,
   User,
+  VerifyEmailPayload,
 } from "../types/auth";
 
+const API_PATH = "/auth";
+
+
 export const login = (payload: LoginPayload) =>
-  api.post<LoginResponse>("/auth/login", payload).then((r) => r.data);
+  api.post<LoginResponse>(`${API_PATH}/login`, payload).then((r) => r.data);
 
 export const register = (payload: RegisterPayload) =>
-  api.post("/auth/register", payload);
+  api.post(`${API_PATH}/register`, payload);
 
 export const getCurrentUser = () =>
-  api.get<User>("/auth/me").then((r) => r.data);
+  api.get<User>(`${API_PATH}/me`).then((r) => r.data);
+
+export const verifyEmail = (payload: VerifyEmailPayload) =>
+  api.post(`${API_PATH}/verify-email`, payload);
