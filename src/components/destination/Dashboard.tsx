@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,220 +11,18 @@ import {
 
 import { DataPagination } from "@/components/DataPagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCategories } from "@/features/categories";
 import { DestinationCard } from "@/features/destinations/components/destination-card";
 import { useDestinations } from "@/features/destinations/hooks/use-destinations";
 import { uniqueKey } from "@/lib/utils";
+import type { PaginationParams } from "@/types/PaginationParams";
 import { useRouter, useSearch } from "@tanstack/react-router";
-import { ChevronDown, Plus } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Plus, Search } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
-const CATEGORIES = ["Beach", "Mountain", "City", "Countryside", "Cultural"];
-
-const MOCK_DESTINATIONS = [
-  {
-    id: "1",
-    name: "Tegallalang Rice Terraces",
-    city: "Ubud",
-    country: "Indonesia",
-    rating: 4.8,
-    images: [
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c1", name: "Nature" },
-      { id: "c2", name: "Cultural" },
-    ],
-    latitude: -8.4,
-    longitude: 115.2,
-  },
-  {
-    id: "2",
-    name: "Oia Sunset Point",
-    city: "Santorini",
-    country: "Greece",
-    rating: 4.9,
-    images: [
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c3", name: "Beach" },
-      { id: "c4", name: "City" },
-    ],
-    latitude: 36.4,
-    longitude: 25.3,
-  },
-  {
-    id: "3",
-    name: "Arashiyama Bamboo Grove",
-    city: "Kyoto",
-    country: "Japan",
-    rating: 4.7,
-    images: [
-      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c2", name: "Cultural" },
-      { id: "c1", name: "Nature" },
-    ],
-    latitude: 35.0,
-    longitude: 135.6,
-  },
-  {
-    id: "4",
-    name: "Machu Picchu Citadel",
-    city: "Cusco Region",
-    country: "Peru",
-    rating: 4.9,
-    images: [
-      "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c5", name: "Mountain" },
-      { id: "c2", name: "Cultural" },
-    ],
-    latitude: -13.2,
-    longitude: -72.5,
-  },
-  {
-    id: "5",
-    name: "Positano Village",
-    city: "Amalfi Coast",
-    country: "Italy",
-    rating: 4.8,
-    images: [
-      "https://images.unsplash.com/photo-1612698093158-e07ac200d44e?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c3", name: "Beach" },
-      { id: "c4", name: "City" },
-    ],
-    latitude: 40.6,
-    longitude: 14.4,
-  },
-  {
-    id: "6",
-    name: "Lake Louise",
-    city: "Banff",
-    country: "Canada",
-    rating: 4.9,
-    images: [
-      "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c5", name: "Mountain" },
-      { id: "c1", name: "Nature" },
-    ],
-    latitude: 51.4,
-    longitude: -116.2,
-  },
-  {
-    id: "7",
-    name: "Table Mountain",
-    city: "Cape Town",
-    country: "South Africa",
-    rating: 4.7,
-    images: [
-      "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c5", name: "Mountain" },
-      { id: "c1", name: "Nature" },
-    ],
-    latitude: -33.9,
-    longitude: 18.4,
-  },
-  {
-    id: "8",
-    name: "Central Park",
-    city: "New York City",
-    country: "USA",
-    rating: 4.6,
-    images: [
-      "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c4", name: "City" },
-      { id: "c1", name: "Nature" },
-    ],
-    latitude: 40.7,
-    longitude: -73.9,
-  },
-  {
-    id: "9",
-    name: "Eiffel Tower",
-    city: "Paris",
-    country: "France",
-    rating: 4.7,
-    images: [
-      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c4", name: "City" },
-      { id: "c2", name: "Cultural" },
-    ],
-    latitude: 48.8,
-    longitude: 2.3,
-  },
-  {
-    id: "10",
-    name: "Ha Long Bay Cruise",
-    city: "Quảng Ninh",
-    country: "Vietnam",
-    rating: 4.8,
-    images: [
-      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c3", name: "Beach" },
-      { id: "c1", name: "Nature" },
-    ],
-    latitude: 20.9,
-    longitude: 107.1,
-  },
-  {
-    id: "11",
-    name: "Torres del Paine",
-    city: "Patagonia",
-    country: "Argentina",
-    rating: 4.9,
-    images: [
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600",
-    ],
-    description: "",
-    categories: [
-      { id: "c5", name: "Mountain" },
-      { id: "c6", name: "Countryside" },
-    ],
-    latitude: -50.9,
-    longitude: -73.4,
-  },
-  {
-    id: "12",
-    name: "Overwater Bungalows",
-    city: "Malé",
-    country: "Maldives",
-    rating: 5.0,
-    images: [
-      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600",
-    ],
-    description: "",
-    categories: [{ id: "c3", name: "Beach" }],
-    latitude: 4.2,
-    longitude: 73.5,
-  },
-];
-
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
 
 function DestinationCardSkeleton() {
   return (
@@ -246,31 +45,134 @@ export const DestinationDashboard: React.FC = () => {
   const params = useSearch({
     from: "/",
   });
-  const [page, setPage] = useState(params.page || 1);
+  const [paginatedParams, setPaginatedParams] = useState<PaginationParams>({
+    page: params.page || 1,
+    pageSize: PAGE_SIZE,
+    filters: {},
+    sortBy: params.sortBy || undefined,
+    sortDirection: params.sortDirection || undefined,
+  });
+
   const [nearMe, setNearMe] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const { data, isLoading, isError, error, refetch } = useDestinations(page, PAGE_SIZE);
+  const [searchValue, setSearchValue] = useState("");
+  const [sortOption, setSortOption] = useState("");
 
-  function toggleCategory(category: string) {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
+  const debouncedSearch = useDebounce((value: string) => {
+    setPaginatedParams((prev) => ({
+      ...prev,
+      filters: {
+        ...prev.filters,
+        name__like: value ? [value] : undefined,
+      },
+      page: 1,
+    }));
+  }, 1000);
+
+  const handleSortChange = (option: string) => {
+    setSortOption(option);
+    if (!option) {
+      setPaginatedParams((prev) => ({
+        ...prev,
+        sortBy: undefined,
+        sortDirection: undefined,
+        page: 1,
+      }));
+      return;
+    }
+    const lastUnderscore = option.lastIndexOf("_");
+    const field = option.slice(0, lastUnderscore);
+    const direction = option.slice(lastUnderscore + 1) as "asc" | "desc";
+    setPaginatedParams((prev) => ({
+      ...prev,
+      sortBy: field,
+      sortDirection: direction,
+      page: 1,
+    }));
+  };
+  const {
+    data: destinationRes,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isSuccess,
+  } = useDestinations(paginatedParams);
+  const { data: categoryRes } = useCategories({
+    page: 1,
+    pageSize: 1000,
+    filters: {},
+  });
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) => {
+      const nextCategories = prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category],
-    );
+        : [...prev, category];
+
+      setPaginatedParams((prevParams) => ({
+        ...prevParams,
+        filters: {
+          ...prevParams.filters,
+          "categories.id": nextCategories,
+        },
+        page: 1,
+      }));
+
+      return nextCategories;
+    });
   }
 
-  const destinations = data?.data?.length ? data.data : MOCK_DESTINATIONS;
-  const pagination = data?.pagination ?? {
-    page,
+  const getCurrentLocation = (v: boolean) => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      setNearMe(false);
+      return;
+    }
+    if (!v) {
+      setNearMe(false);
+      setPaginatedParams((prevParams) => ({
+        ...prevParams,
+        filters: {
+          ...prevParams.filters,
+          coordinates__near: undefined,
+        },
+        page: 1,
+      }));
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      setNearMe(true);
+      setPaginatedParams((prevParams) => ({
+        ...prevParams,
+        filters: {
+          ...prevParams.filters,
+          coordinates__near: [latitude, longitude, 20],
+        },
+        page: 1,
+      }));
+    }, (error) => {
+      toast.error("Failed to get your location. Please allow location access and try again.", { duration: 5000 });
+      setNearMe(false);
+    });
+  }
+
+  const destinations = isSuccess ? destinationRes.data : [];
+  const categories = categoryRes?.data ?? [];
+  const pagination = destinationRes?.pagination ?? {
+    page: 1,
     pageSize: PAGE_SIZE,
-    total: PAGE_SIZE * 4, // mock: simulate 4 pages
-    hasNext: page < 4,
-    hasPrevious: page > 1,
+    totalElements: 0,
+    hasNext: false,
+    hasPrevious: false,
+    totalPages: 0,
   };
 
   if (isError) {
     return (
-      <div className="container p-4 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+      <div className="mx-auto container p-4 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
         <div className="flex flex-col items-center gap-3">
           <div className="flex size-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <svg
@@ -291,7 +193,9 @@ export const DestinationDashboard: React.FC = () => {
           </div>
           <h2 className="text-xl font-semibold">Failed to load destinations</h2>
           <p className="max-w-sm text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : "Something went wrong while fetching destinations."}
+            {error instanceof Error
+              ? error.message
+              : "Something went wrong while fetching destinations."}
           </p>
         </div>
         <Button onClick={() => refetch()}>Try again</Button>
@@ -300,8 +204,22 @@ export const DestinationDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container p-4 space-y-6">
+    <div className="mx-auto container p-4 flex flex-col gap-6 min-h-[calc(100vh-1rem)]">
       <h3 className="text-xl font-semibold">Destinations</h3>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+        <Input
+          placeholder="Search destinations..."
+          className="pl-8 h-9"
+          value={searchValue}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+            debouncedSearch(e.target.value);
+          }}
+        />
+      </div>
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
@@ -324,22 +242,65 @@ export const DestinationDashboard: React.FC = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <DropdownMenuCheckboxItem
-                  key={uniqueKey(`cat-${cat}`)}
-                  checked={selectedCategories.includes(cat)}
-                  onCheckedChange={() => toggleCategory(cat)}
+                  key={uniqueKey(`cat-${cat.id}`)}
+                  checked={selectedCategories.includes(cat.id)}
+                  onCheckedChange={() => toggleCategory(cat.id)}
                 >
-                  {cat}
+                  {cat.name}
                 </DropdownMenuCheckboxItem>
               ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="w-40 justify-between">
+                <span className="flex items-center gap-1.5">
+                  <ArrowUpDown className="size-3.5 opacity-60" />
+                  {sortOption
+                    ? sortOption === "rating_asc" ? "Rating asc"
+                    : sortOption === "rating_desc" ? "Rating desc"
+                    : sortOption === "name_asc" ? "Name asc"
+                    : "Name desc"
+                    : "Sort by"}
+                </span>
+                <ChevronDown className="size-4 opacity-60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuCheckboxItem
+                checked={sortOption === "rating_asc"}
+                onCheckedChange={() => handleSortChange(sortOption === "rating_asc" ? "" : "rating_asc")}
+              >
+                Rating asc
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={sortOption === "rating_desc"}
+                onCheckedChange={() => handleSortChange(sortOption === "rating_desc" ? "" : "rating_desc")}
+              >
+                Rating desc
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={sortOption === "name_asc"}
+                onCheckedChange={() => handleSortChange(sortOption === "name_asc" ? "" : "name_asc")}
+              >
+                Name asc
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={sortOption === "name_desc"}
+                onCheckedChange={() => handleSortChange(sortOption === "name_desc" ? "" : "name_desc")}
+              >
+                Name desc
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
             <Checkbox
               checked={nearMe}
-              onCheckedChange={(v) => setNearMe(!!v)}
+              onCheckedChange={getCurrentLocation}
             />
             Near my location
           </label>
@@ -349,13 +310,13 @@ export const DestinationDashboard: React.FC = () => {
         <Button
           size="sm"
           className="gap-1"
-          onClick={() => router.navigate({ to: '/destination/create' })}
+          onClick={() => router.navigate({ to: "/trip/create" })}
         >
           <Plus className="size-4" />
           Create your trip
         </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 content-start">
         {isLoading
           ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <DestinationCardSkeleton key={uniqueKey(`skeleton-${i}`)} />
@@ -374,9 +335,11 @@ export const DestinationDashboard: React.FC = () => {
       </div>
       {pagination && (
         <DataPagination
-          page={page}
+          page={paginatedParams.page}
           pagination={pagination}
-          onPageChange={setPage}
+          onPageChange={(newPage) =>
+            setPaginatedParams({ ...paginatedParams, page: newPage })
+          }
         />
       )}
     </div>

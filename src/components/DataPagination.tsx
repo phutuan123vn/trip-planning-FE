@@ -29,7 +29,7 @@ function getPaginationRange(current: number, total: number): (number | "ellipsis
 }
 
 export function DataPagination({ page, pagination, onPageChange }: DataPaginationProps) {
-  const totalPages = Math.ceil(pagination.total / pagination.pageSize);
+  const totalPages = pagination.totalElements ??  Math.ceil(pagination.totalElements / pagination.pageSize);
   const range = getPaginationRange(page, totalPages);
 
   return (

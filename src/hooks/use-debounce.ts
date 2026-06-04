@@ -1,5 +1,6 @@
 import lodash from "lodash";
 
-export const useDebounce = (cb: () => void, delay: number) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const useDebounce = <T extends (...args: any[]) => void>(cb: T, delay: number) => {
   return lodash.debounce(cb, delay);
 };

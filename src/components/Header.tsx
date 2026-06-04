@@ -12,13 +12,14 @@ import {
 import { Button } from "./ui/button";
 import { useAuth } from "@/app/context/AuthContext";
 import { useLogout } from "@/features/auth";
+import { Role } from "@/features/auth/types/auth";
 
 export const Header: FC = () => {
   const { user, isAuthenticated } = useAuth();
   const logout = useLogout();
 
   return (
-    <header className="bg-gray-800 text-white p-4 flex items-center justify-between">
+    <header className="p-4 flex items-center justify-between">
       <Link to="/" className="text-2xl font-bold">
         Trip Planning
       </Link>
@@ -28,12 +29,12 @@ export const Header: FC = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="text-black rounded-md">
-                {user?.firstName ?? "Account"}
+                Account
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>
-                {user ? `${user.firstName} ${user.lastName}` : "My Account"}
+                {user ? `${user.email}` : "Account"}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
@@ -44,6 +45,20 @@ export const Header: FC = () => {
                   <Link to="/trip/create">Create New Trip</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              {user?.role === Role.USER && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link to="/category/manage">Create Destination</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/destination/manage">Manage Destinations</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>

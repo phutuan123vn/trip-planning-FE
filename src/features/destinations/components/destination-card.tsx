@@ -11,16 +11,17 @@ import type { Destination } from "../types/destination";
 import { MapPin, Star } from "lucide-react";
 import { uniqueKey } from "@/lib/utils";
 
-const DEFAULT_IMAGE = "https://placehold.co/600x400?text=No+Image";
+// const DEFAULT_IMAGE = "https://placehold.co/600x600?text=No+Image";
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600";
 
 type DestinationCardProps = Pick<Destination, "name" | "images" | "city" | "country" | "rating" | "categories">;
 
 export function DestinationCard({ name, images, city, country, rating, categories }: DestinationCardProps) {
-    const displayImages = images.length > 0 ? images.slice(0, 3) : [DEFAULT_IMAGE];
+    const displayImages = [DEFAULT_IMAGE];
     const hasMultiple = displayImages.length > 1;
 
     return (
-        <Card className="overflow-hidden gap-0">
+        <Card className="overflow-hidden gap-0 pt-0">
             <Carousel className="w-full">
                 <CarouselContent className="ml-0">
                     {displayImages.map((src, index) => (
@@ -28,7 +29,7 @@ export function DestinationCard({ name, images, city, country, rating, categorie
                             <img
                                 src={src}
                                 alt={`${name} - image ${index + 1}`}
-                                className="h-48 w-full object-cover rounded-t-xl"
+                                className="w-full aspect-video object-cover rounded-t-xl h-48"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = DEFAULT_IMAGE;
                                 }}

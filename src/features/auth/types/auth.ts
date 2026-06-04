@@ -1,11 +1,18 @@
 import type { PaginatedResponse } from "@/types/Response";
 
+export const Role = {
+  USER: "USER",
+  ADMIN: "ADMIN",
+} as const;
+
+export type Role = (typeof Role)[keyof typeof Role];
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: "USER" | "ADMIN";
+  role: Role;
 }
 
 export interface LoginPayload {
@@ -29,6 +36,8 @@ export interface LoginData {
 
 
 export type LoginResponse = PaginatedResponse<LoginData>;
+
+export type CurrentUserResponse = PaginatedResponse<User>;
 
 export interface VerifyEmailPayload {
   token: string;

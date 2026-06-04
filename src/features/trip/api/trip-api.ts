@@ -26,7 +26,7 @@ export const createTrip = async (input: {
   endDate: string;
   destinationIds: string[];
 }): Promise<Trip> => {
-  const { data } = await api.post<Trip>(`${API_PATH}`, input);
+  const { data } = await api.post<Trip>(`${API_PATH}/`, input);
   return data;
 };
 

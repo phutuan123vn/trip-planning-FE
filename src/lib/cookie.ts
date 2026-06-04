@@ -3,7 +3,6 @@ const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export function setTokenCookie(token: string): void {
   const expires = new Date(Date.now() + TOKEN_TTL_MS).toUTCString();
-  console.log(encodeURIComponent(token));
   document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; expires=${expires}; path=/; SameSite=Lax`;
 }
 

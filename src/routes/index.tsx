@@ -7,9 +7,9 @@ const SearchSchema = z.object({
     .number()
     .int()
     .positive()
-    .catch(() => 1),
+    .optional(),
   sortBy: z.string().optional(),
-  sortOrder: z.enum(["asc", "desc"]).optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
 });
 
 export const Route = createFileRoute("/")({

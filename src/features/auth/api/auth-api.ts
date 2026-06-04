@@ -1,9 +1,9 @@
 import api from "@/lib/axios";
 import type {
+    CurrentUserResponse,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
-  User,
   VerifyEmailPayload,
 } from "../types/auth";
 
@@ -17,7 +17,7 @@ export const register = (payload: RegisterPayload) =>
   api.post(`${API_PATH}/register`, payload);
 
 export const getCurrentUser = () =>
-  api.get<User>(`${API_PATH}/me`).then((r) => r.data);
+  api.get<CurrentUserResponse>(`${API_PATH}/me`).then((r) => r.data.data?.[0] || null);
 
 export const verifyEmail = (payload: VerifyEmailPayload) =>
   api.post(`${API_PATH}/verify-email`, payload);

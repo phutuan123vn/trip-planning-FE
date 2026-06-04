@@ -16,3 +16,6 @@ export { useLogout } from "./hooks/use-logout";
 // Schemas
 export { LoginSchema, RegisterSchema } from "./schemas/auth-schema";
 export type { LoginDto, RegisterDto } from "./schemas/auth-schema";
+
+// Components
+export { LoginDialog } from "./components/login-dialog";
