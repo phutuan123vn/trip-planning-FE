@@ -1,17 +1,19 @@
+import type { PaginationParams } from "@/types/PaginationParams";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTrip, deleteTrip, getTripById, getTrips, updateTrip } from "../api/trip-api";
+import type { TripUpdateInput } from "../types";
 
 export const tripKeys = {
   all: ["trips"] as const,
-  list: (page: number, pageSize: number) =>
-    ["trips", page, pageSize] as const,
+  list: (req: PaginationParams) =>
+    ["trips", req] as const,
   detail: (id: string) => ["trips", id] as const,
 };
 
-export const useTrips = (page: number, pageSize = 10) =>
+export const useTrips = (req: PaginationParams) =>
   useQuery({
-    queryKey: tripKeys.list(page, pageSize),
-    queryFn: () => getTrips(page, pageSize),
+    queryKey: tripKeys.list(req),
+    queryFn: () => getTrips(req),
   });
 
 export const useTripDetail = (id: string) =>
@@ -34,7 +36,7 @@ export const useCreateTrip = () => {
 export const useUpdateTrip = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...input }: { id: string; name: string; startDate: string; endDate: string; destinationIds: string[] }) =>
+    mutationFn: ({ id, ...input }: { id: string } & TripUpdateInput) =>
       updateTrip(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });

@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DestinationMultiSelect } from "@/features/destinations/components/destination-multi-select";
-import { useTripCreateStore } from "@/features/trip/stores/trip-create-store";
-import { useEffect, useState, type SubmitEvent } from "react";
-import { DatePickerInput } from "../ui/date-picker";
-import { useCreateTrip } from "@/features/trip";
-import { LoginDialog } from "@/features/auth/components/login-dialog";
 import { useAuth } from "@/features/auth";
+import { LoginDialog } from "@/features/auth/components/login-dialog";
+import { DestinationMultiSelect } from "@/features/destinations/components/destination-multi-select";
+import { useCreateTrip } from "@/features/trip";
+import { useTripCreateStore } from "@/features/trip/stores/trip-create-store";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { DatePickerInput } from "../ui/date-picker";
 
 export function TripCreate() {
   const {
@@ -19,7 +19,7 @@ export function TripCreate() {
     reset,
   } = useTripCreateStore();
 
-  const {isAuthenticated} = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const { mutate: createTrip, isPending } = useCreateTrip();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
@@ -29,18 +29,18 @@ export function TripCreate() {
     return () => reset();
   }, []);
 
-  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+  function handleCreateClick(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    if (validate()) createTrip?.(form);
-  }
-
-  function handleCreateClick() {
-    if(validate() && !isAuthenticated) {
+    if (validate() && !isAuthenticated) {
       setLoginDialogOpen(true);
       return;
     }
     if (validate() && isAuthenticated) {
-      createTrip?.(form);
+      const destinationIds = form.destinationIds.map((d) => d.id);
+      createTrip({
+        ...form,
+        destinationIds,
+      });
       toast.success("Trip created successfully!");
       reset();
       return;
@@ -48,7 +48,7 @@ export function TripCreate() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-6 p-4">
+    <form className="max-w-5xl mx-auto space-y-6 p-4">
       <h1 className="text-2xl font-semibold !text-black">Create Trip</h1>
 
       {/* Trip name */}
@@ -73,10 +73,7 @@ export function TripCreate() {
             label="End Date"
             value={form.startDate ? new Date(form.startDate) : undefined}
             onChange={(date) =>
-              setField(
-                "startDate",
-                date ? date.toISOString() :"",
-              )
+              setField("startDate", date ? date.toISOString() : "")
             }
             utc
           />
@@ -112,8 +109,6 @@ export function TripCreate() {
         )}
       </div>
 
-      
-
       <Button
         type="button"
         disabled={isPending}
@@ -123,10 +118,7 @@ export function TripCreate() {
         {isPending ? "Creating…" : "Create Trip"}
       </Button>
 
-      <LoginDialog
-        open={loginDialogOpen}
-        onOpenChange={setLoginDialogOpen}
-      />
+      <LoginDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
     </form>
   );
 }

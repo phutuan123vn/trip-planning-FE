@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { tripCreateSchema } from "./trip-create-schema";
 
 const destinationSchema = z.object({
   id: z.string(),
@@ -6,7 +7,7 @@ const destinationSchema = z.object({
 });
 
 
-export const tripCreateSchema = z.object({
+export const tripUpdateSchema = z.object({
   name: z.string().min(1, "Trip name is required"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
@@ -14,4 +15,4 @@ export const tripCreateSchema = z.object({
 });
 
 
-export type TripCreateSchema = z.infer<typeof tripCreateSchema>;
+export type TripUpdateSchema = z.infer<typeof tripUpdateSchema>;

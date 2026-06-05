@@ -7,3 +7,16 @@ export interface Trip {
     endDate: string;
     destinations: Destination[];
 }
+
+
+export interface TripDetails extends Trip {}
+
+
+export type TripCreateInput = {
+    name: string;
+    startDate: string;
+    endDate: string;
+    destinationIds: string[];
+};
+
+export type TripUpdateInput = TripCreateInput & {};

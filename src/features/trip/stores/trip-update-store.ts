@@ -1,30 +1,30 @@
 import { create } from "zustand";
 import {
-  tripCreateSchema,
-  type TripCreateSchema,
-} from "../schemas/trip-create-schema";
+  tripUpdateSchema,
+  type TripUpdateSchema,
+} from "../schemas/trip-update-schema";
 
-type FormErrors = Partial<Record<keyof TripCreateSchema, string>>;
+type FormErrors = Partial<Record<keyof TripUpdateSchema, string>>;
 
-interface TripCreateStore {
-  values: TripCreateSchema;
+interface TripUpdateStore {
+  values: TripUpdateSchema;
   errors: FormErrors;
-  setField: <K extends keyof TripCreateSchema>(
+  setField: <K extends keyof TripUpdateSchema>(
     key: K,
-    value: TripCreateSchema[K]
+    value: TripUpdateSchema[K],
   ) => void;
   validate: () => boolean;
   reset: () => void;
 }
 
-const initialValues: TripCreateSchema = {
+const initialValues: TripUpdateSchema = {
   name: "",
   startDate: "",
   endDate: "",
   destinationIds: [],
 };
 
-export const useTripCreateStore = create<TripCreateStore>((set, get) => ({
+export const useTripUpdateStore = create<TripUpdateStore>((set, get) => ({
   values: initialValues,
   errors: {},
 
@@ -35,14 +35,14 @@ export const useTripCreateStore = create<TripCreateStore>((set, get) => ({
     })),
 
   validate: () => {
-    const result = tripCreateSchema.safeParse(get().values);
+    const result = tripUpdateSchema.safeParse(get().values);
     if (result.success) {
       set({ errors: {} });
       return true;
     }
     const errors: FormErrors = {};
     for (const issue of result.error.issues) {
-      const key = issue.path[0] as keyof TripCreateSchema;
+      const key = issue.path[0] as keyof TripUpdateSchema;
       if (key && !errors[key]) errors[key] = issue.message;
     }
     set({ errors });

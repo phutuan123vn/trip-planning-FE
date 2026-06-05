@@ -1,3 +1,4 @@
+import { DataPagination } from "@/components/DataPagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,44 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DataPagination } from "@/components/DataPagination";
 import { useTrips } from "@/features/trip/hooks/use-trips";
 import { uniqueKey } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { CalendarDays, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 
-const MOCK_TRIPS = [
-  {
-    id: "1",
-    name: "Summer in Europe",
-    startDate: "2026-07-01",
-    endDate: "2026-07-21",
-    destinations: [
-      { id: "1", name: "Oia Sunset Point", city: "Santorini", country: "Greece", rating: 4.9, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-      { id: "2", name: "Positano Village", city: "Amalfi Coast", country: "Italy", rating: 4.8, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-      { id: "3", name: "Eiffel Tower", city: "Paris", country: "France", rating: 4.7, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-    ],
-  },
-  {
-    id: "2",
-    name: "Asia Adventure",
-    startDate: "2026-09-10",
-    endDate: "2026-09-25",
-    destinations: [
-      { id: "4", name: "Tegallalang Rice Terraces", city: "Ubud", country: "Indonesia", rating: 4.8, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-      { id: "5", name: "Ha Long Bay Cruise", city: "Quảng Ninh", country: "Vietnam", rating: 4.8, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-    ],
-  },
-  {
-    id: "3",
-    name: "South America Trek",
-    startDate: "2026-11-01",
-    endDate: "2026-11-14",
-    destinations: [
-      { id: "6", name: "Machu Picchu Citadel", city: "Cusco Region", country: "Peru", rating: 4.9, images: [], description: "", categories: [], latitude: 0, longitude: 0 },
-    ],
-  },
-];
+const PAGE_SIZE = 5;
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -62,29 +31,30 @@ function tripDuration(start: string, end: string) {
 }
 
 export function YourTrips() {
-  const search = useSearch({ strict: false }) as { page?: number };
-  const page = search.page ?? 1;
-  const pageSize = 10;
   const navigate = useNavigate();
+  const search = useSearch({ from: "/trip/your-trips" });
+  const paginationParams = {
+    page: search.page ? Number(search.page) : 1,
+    pageSize: PAGE_SIZE,
+    filters: {},
+  };
 
-  const { data: response, isPending, isError } = useTrips(page, pageSize);
+  const {
+    data: response,
+    isPending,
+    isError,
+    refetch,
+  } = useTrips(paginationParams);
 
   function handleDelete(tripId: string) {
     // TODO: integrate with delete API
     console.log("Delete trip:", tripId);
   }
 
-  const trips = response?.data?.length ? response.data : MOCK_TRIPS;
-  const pagination = response?.pagination ?? {
-    page,
-    pageSize,
-    total: MOCK_TRIPS.length,
-    hasNext: false,
-    hasPrevious: page > 1,
-  };
+  const trips = response?.data?.length ? response.data : [];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 p-4">
+    <div className="container max-w-5xl mx-auto space-y-6 p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Your Trips</h1>
@@ -101,12 +71,18 @@ export function YourTrips() {
       {isPending ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={uniqueKey(`skel-${i}`)} className="h-14 w-full rounded-lg" />
+            <Skeleton
+              key={uniqueKey(`skel-${i}`)}
+              className="h-14 w-full rounded-lg"
+            />
           ))}
         </div>
       ) : isError ? (
         <div className="flex items-center justify-center h-48 text-muted-foreground">
           Failed to load trips.
+          <Button variant="link" onClick={() => refetch()} className="ml-2">
+            Retry
+          </Button>
         </div>
       ) : trips.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 gap-3 text-muted-foreground">
@@ -119,7 +95,7 @@ export function YourTrips() {
           </Button>
         </div>
       ) : (
-        <>
+        <div className="space-y-4 min-h-101 flex flex-col justify-between">
           <div className="rounded-lg border">
             <Table>
               <TableHeader>
@@ -128,23 +104,28 @@ export function YourTrips() {
                   <TableHead className="w-[280px]">Dates</TableHead>
                   <TableHead className="w-[100px]">Duration</TableHead>
                   <TableHead className="w-[150px]">Destinations</TableHead>
-                  <TableHead className="w-[120px] text-right">Actions</TableHead>
+                  <TableHead className="w-[120px] text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {trips.map((trip) => (
                   <TableRow key={uniqueKey(`trip-${trip.id}`)}>
-                    <TableCell className="font-medium text-left">{trip.name}</TableCell>
+                    <TableCell className="font-medium text-left">
+                      {trip.name}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <CalendarDays className="size-3.5 shrink-0" />
                         <span>
-                          {formatDate(trip.startDate)} – {formatDate(trip.endDate)}
+                          {formatDate(trip.startDate)} –{" "}
+                          {formatDate(trip.endDate)}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-left">
                         {tripDuration(trip.startDate, trip.endDate)} days
                       </Badge>
                     </TableCell>
@@ -189,20 +170,17 @@ export function YourTrips() {
             </Table>
           </div>
 
-          {/* Pagination */}
-          {pagination.total > pageSize && (
-            <DataPagination
-              page={page}
-              pagination={pagination}
-              onPageChange={(newPage) =>
-                navigate({
-                  to: "/trip/your-trips",
-                  search: { page: newPage },
-                })
-              }
-            />
-          )}
-        </>
+          <DataPagination
+            page={paginationParams.page}
+            pagination={response.pagination}
+            onPageChange={(newPage) =>
+              navigate({
+                to: "/trip/your-trips",
+                search: { page: newPage },
+              })
+            }
+          />
+        </div>
       )}
     </div>
   );

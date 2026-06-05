@@ -13,11 +13,16 @@ import { ChevronDown, Search } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useInfiniteDestinations } from "../hooks/use-infinite-destinations";
 
+type DestinationValue = {
+  id: string;
+  name: string;
+};
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface DestinationMultiSelectProps {
-  value: string[];
-  onChange: (value: string[]) => void;
+  value: DestinationValue[];
+  onChange: (value: DestinationValue[]) => void;
   placeholder?: string;
   maxDisplay?: number;
   className?: string;
@@ -32,7 +37,6 @@ export function DestinationMultiSelect({
   maxDisplay = 3,
   className,
 }: DestinationMultiSelectProps) {
-
   // ── State ──────────────────────────────────────────────────────────────────
 
   const [search, setSearch] = useState("");
@@ -47,11 +51,14 @@ export function DestinationMultiSelect({
 
   // ── Search / debounce ──────────────────────────────────────────────────────
 
-  const updateDebouncedSearch = useDebounce((val: string) => setDebouncedSearch(val), 500);
+  const updateDebouncedSearch = useDebounce(
+    (val: string) => setDebouncedSearch(val),
+    500,
+  );
 
   const filters = useMemo(
     () => (debouncedSearch ? { name__ilike: [debouncedSearch] } : undefined),
-    [debouncedSearch]
+    [debouncedSearch],
   );
 
   // ── Data fetching ──────────────────────────────────────────────────────────
@@ -64,7 +71,7 @@ export function DestinationMultiSelect({
 
   const destinations = useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data]
+    [data],
   );
 
   // ── Derived values ─────────────────────────────────────────────────────────
@@ -74,7 +81,7 @@ export function DestinationMultiSelect({
   const selectedLabels = useMemo(() => {
     const map: Record<string, string> = {};
     for (const d of destinations) {
-      if (value.includes(d.id)) map[d.id] = d.name;
+      if (value.some((v) => v.id === d.id)) map[d.id] = d.name;
     }
     return map;
   }, [destinations, value]);
@@ -82,7 +89,11 @@ export function DestinationMultiSelect({
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   function toggle(id: string) {
-    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
+    onChange(
+      value.some((v) => v.id === id)
+        ? value.filter((v) => v.id !== id)
+        : [...value, { id, name: selectedLabels[id] ?? id }],
+    );
   }
 
   function handleOpenChange(open: boolean) {
@@ -93,7 +104,11 @@ export function DestinationMultiSelect({
   function handleScroll(e: React.UIEvent<HTMLDivElement>) {
     const el = e.currentTarget;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
-    if (nearBottom && hasNextPageRef.current && !isFetchingNextPageRef.current) {
+    if (
+      nearBottom &&
+      hasNextPageRef.current &&
+      !isFetchingNextPageRef.current
+    ) {
       fetchNextPage();
     }
   }
@@ -116,7 +131,7 @@ export function DestinationMultiSelect({
           type="button"
           className={cn(
             "flex min-h-8 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-            className
+            className,
           )}
         >
           <span className="flex flex-wrap items-center gap-1 overflow-hidden">
@@ -124,13 +139,21 @@ export function DestinationMultiSelect({
               <span className="text-muted-foreground">{placeholder}</span>
             ) : (
               <>
-                {value.slice(0, maxDisplay).map((id) => (
-                  <Badge key={uniqueKey(`dst-sel-${id}`)} variant="secondary" className="text-xs">
-                    {selectedLabels[id] ?? id}
+                {value.slice(0, maxDisplay).map((v) => (
+                  <Badge
+                    key={uniqueKey(`dst-sel-${v.id}`)}
+                    variant="secondary"
+                    className="text-xs"
+                  >
+                    {selectedLabels[v.id] ?? v.name}
                   </Badge>
                 ))}
                 {overflow > 0 && (
-                  <Badge key="dst-overflow" variant="outline" className="text-xs">
+                  <Badge
+                    key="dst-overflow"
+                    variant="outline"
+                    className="text-xs"
+                  >
                     +{overflow}
                   </Badge>
                 )}
@@ -159,7 +182,11 @@ export function DestinationMultiSelect({
         </div>
 
         {/* List */}
-        <div ref={scrollContainerRef} onScroll={handleScroll} className="max-h-56 overflow-y-auto p-1">
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="max-h-56 overflow-y-auto p-1"
+        >
           {isLoading ? (
             <div className="flex justify-center py-4">
               <Spinner className="size-4" />
@@ -173,7 +200,7 @@ export function DestinationMultiSelect({
               {destinations.map((d) => (
                 <DropdownMenuCheckboxItem
                   key={uniqueKey(`dst-opt-${d.id}`)}
-                  checked={value.includes(d.id)}
+                  checked={value.some((v) => v.id === d.id)}
                   onCheckedChange={() => toggle(d.id)}
                 >
                   {d.name}

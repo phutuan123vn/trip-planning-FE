@@ -9,8 +9,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      setTokenCookie(data.accessToken);
-      setUser(data.user);
+      setTokenCookie(data.data?.[0].accessToken);
+      setUser(data.data?.[0].user);
     },
   });
 };

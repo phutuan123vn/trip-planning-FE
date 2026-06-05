@@ -4,7 +4,7 @@ import type { FilterParams } from "@/types/PaginationParams";
 
 const PAGE_SIZE = 20;
 
-export const useInfiniteDestinations = (filters?: FilterParams) =>
+export const useInfiniteDestinations = (filters: FilterParams = {}) =>
   useInfiniteQuery({
     queryKey: ["destinations", "infinite", filters],
     queryFn: ({ pageParam = 1 }) =>

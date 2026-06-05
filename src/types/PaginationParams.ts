@@ -3,7 +3,7 @@ export type PaginationParams = {
     pageSize: number;
     sortBy?: string;
     sortDirection?: "asc" | "desc";
-    filters?: FilterParams;
+    filters: FilterParams;
 }
 
 

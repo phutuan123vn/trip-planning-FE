@@ -11,5 +11,6 @@ export const useCurrentUser = () => {
     queryKey: authKeys.currentUser,
     queryFn: getCurrentUser,
     enabled: !!getTokenCookie(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

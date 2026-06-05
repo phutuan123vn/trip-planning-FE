@@ -2,73 +2,67 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { useDestinations } from "@/features/destinations/hooks/use-destinations";
-import { useTripDetail } from "@/features/trip/hooks/use-trips";
-import { useTripCreateStore } from "@/features/trip/stores/trip-create-store";
-import type { TripCreateInput } from "@/features/trip/schemas/trip-create-schema";
-import React, { useEffect } from "react";
+import { DestinationMultiSelect } from "@/features/destinations";
+import { useTripUpdateStore } from "@/features/trip";
+import { useTripDetail, useUpdateTrip } from "@/features/trip/hooks/use-trips";
+import { useEffect, type SubmitEvent } from "react";
+import { toast } from "sonner";
+import { DatePickerInput } from "../ui/date-picker";
 
 interface TripUpdateProps {
   tripId: string;
-  onSubmit?: (data: TripCreateInput) => void;
-  isSubmitting?: boolean;
 }
 
-const MOCK_DESTINATIONS = [
-  { id: "1", name: "Oia Sunset Point" },
-  { id: "2", name: "Tegallalang Rice Terraces" },
-  { id: "3", name: "Machu Picchu Citadel" },
-  { id: "4", name: "Positano Village" },
-  { id: "5", name: "Eiffel Tower" },
-  { id: "6", name: "Ha Long Bay Cruise" },
-  { id: "7", name: "Arashiyama Bamboo Grove" },
-  { id: "8", name: "Lake Louise" },
-];
-
-export function TripUpdate({
-  tripId,
-  onSubmit,
-  isSubmitting = false,
-}: TripUpdateProps) {
-  const { values: form, errors, setField, validate, reset } =
-    useTripCreateStore();
+export function TripUpdate({ tripId }: TripUpdateProps) {
+  const {
+    values: form,
+    errors,
+    setField,
+    validate,
+    reset,
+  } = useTripUpdateStore();
 
   const { data: tripResponse, isPending: tripPending } = useTripDetail(tripId);
-  const { data: destinationsResponse, isPending: destinationsPending } =
-    useDestinations(1, 100);
-
-  const allDestinations = destinationsResponse?.data?.length
-    ? destinationsResponse.data.map((d) => ({ id: d.id, name: d.name }))
-    : MOCK_DESTINATIONS;
-
-  useEffect(() => {
-    reset();
-    return () => reset();
-  }, []);
+  const { mutateAsync: onSubmit, isPending: isSubmitting } = useUpdateTrip();
 
   // Populate form when trip data loads
   useEffect(() => {
     if (tripResponse) {
-      const trip = tripResponse;
+      const trip = tripResponse.data?.[0] || null;
+      if (!trip) throw new Error("Trip not found");
       setField("name", trip.name);
       setField("startDate", trip.startDate);
       setField("endDate", trip.endDate);
       setField(
         "destinationIds",
-        trip.destinations.map((d) => d.id)
+        trip.destinations?.map((d) => ({ id: d.id, name: d.name })) || [],
       );
     }
   }, [tripResponse]);
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (validate()) onSubmit?.(form);
+    if (!validate()) {
+      toast.error("Please fix validation errors");
+      return;
+    }
+    const destinationIds = form.destinationIds.map((d) => d.id);
+    onSubmit({
+      id: tripId,
+      ...form,
+      destinationIds,
+    })
+      .then(() => {
+        toast.success("Trip updated successfully");
+      })
+      .catch(() => {
+        toast.error("Failed to update trip");
+      });
   }
 
   if (tripPending) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6 p-4">
+      <div className="container max-w-2xl mx-auto space-y-6 p-4">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-10 w-full" />
         <div className="grid grid-cols-2 gap-4">
@@ -82,10 +76,7 @@ export function TripUpdate({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-2xl mx-auto space-y-6 p-4"
-    >
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 p-4">
       <h1 className="text-2xl font-semibold">Update Trip</h1>
 
       {/* Trip name */}
@@ -106,26 +97,26 @@ export function TripUpdate({
       {/* Dates */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="startDate">Start Date</Label>
-          <Input
-            id="startDate"
-            type="date"
-            value={form.startDate}
-            onChange={(e) => setField("startDate", e.target.value)}
-            aria-invalid={!!errors.startDate}
+          <DatePickerInput
+            label="End Date"
+            value={form.startDate ? new Date(form.startDate) : undefined}
+            onChange={(date) =>
+              setField("startDate", date ? date.toISOString() : "")
+            }
+            utc
           />
           {errors.startDate && (
             <p className="text-xs text-destructive">{errors.startDate}</p>
           )}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="endDate">End Date</Label>
-          <Input
-            id="endDate"
-            type="date"
-            value={form.endDate}
-            onChange={(e) => setField("endDate", e.target.value)}
-            aria-invalid={!!errors.endDate}
+          <DatePickerInput
+            label="End Date"
+            value={form.endDate ? new Date(form.endDate) : undefined}
+            onChange={(date) =>
+              setField("endDate", date ? date.toISOString() : "")
+            }
+            utc
           />
           {errors.endDate && (
             <p className="text-xs text-destructive">{errors.endDate}</p>
@@ -134,17 +125,12 @@ export function TripUpdate({
       </div>
 
       {/* Destinations */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 min-w-104">
         <Label>Destinations</Label>
-        <MultiSelect
-          options={allDestinations.map((d) => ({
-            value: d.id,
-            label: d.name,
-          }))}
+        <DestinationMultiSelect
           value={form.destinationIds}
           onChange={(ids) => setField("destinationIds", ids)}
           placeholder="Select destinations…"
-          isLoading={destinationsPending}
         />
         {errors.destinationIds && (
           <p className="text-xs text-destructive">{errors.destinationIds}</p>

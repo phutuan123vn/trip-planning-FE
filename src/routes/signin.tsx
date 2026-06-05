@@ -44,12 +44,8 @@ function SignIn() {
       return;
     }
 
-    loginMutation.mutate(result.data, {
-      onSuccess: (res) => {
-        setTokenCookie(res.data[0].accessToken);
-        navigate({ to: "/" });
-      },
-    });
+    loginMutation.mutate(result.data);
+    navigate({ to: "/" });
   };
 
   return (

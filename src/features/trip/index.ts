@@ -1,6 +1,20 @@
-export { getTrips, getTripById, createTrip, updateTrip, deleteTrip } from "./api/trip-api";
-export { tripKeys, useTrips, useTripDetail, useCreateTrip, useUpdateTrip, useDeleteTrip } from "./hooks/use-trips";
+export {
+  createTrip,
+  deleteTrip,
+  getTripById,
+  getTrips,
+  updateTrip,
+} from "./api/trip-api";
+export {
+  tripKeys,
+  useCreateTrip,
+  useDeleteTrip,
+  useTripDetail,
+  useTrips,
+  useUpdateTrip,
+} from "./hooks/use-trips";
 export { tripCreateSchema } from "./schemas/trip-create-schema";
-export type { TripCreateInput } from "./schemas/trip-create-schema";
+export { tripUpdateSchema } from "./schemas/trip-update-schema";
 export { useTripCreateStore } from "./stores/trip-create-store";
-export type { Trip } from "./types";
+export { useTripUpdateStore } from "./stores/trip-update-store";
+export type { Trip, TripCreateInput, TripUpdateInput } from "./types";
