@@ -46,7 +46,7 @@ export function DatePickerInput({
   const [open, setOpen] = useState(false);
 
   return (
-    <Field className="mx-auto w-48" {...props}>
+    <Field className="w-full" {...props}>
       <FieldLabel htmlFor="date-required">{label}</FieldLabel>
       <InputGroup>
         <InputGroupInput

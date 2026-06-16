@@ -1,53 +1,106 @@
 import { create } from "zustand";
-import {
-  tripCreateSchema,
-  type TripCreateSchema,
-} from "../schemas/trip-create-schema";
+import type { DayDestinationEntry, TripDayEntry } from "../types";
 
-type FormErrors = Partial<Record<keyof TripCreateSchema, string>>;
+// ── Step 1 form ───────────────────────────────────────────────────────────────
+
+export interface TripInfoForm {
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+export type TripInfoErrors = Partial<Record<keyof TripInfoForm, string>>;
+
+// ── Store ─────────────────────────────────────────────────────────────────────
 
 interface TripCreateStore {
-  values: TripCreateSchema;
-  errors: FormErrors;
-  setField: <K extends keyof TripCreateSchema>(
-    key: K,
-    value: TripCreateSchema[K]
-  ) => void;
-  validate: () => boolean;
+  step: 1 | 2;
+  info: TripInfoForm;
+  infoErrors: TripInfoErrors;
+  days: TripDayEntry[];
+
+  setInfoField: <K extends keyof TripInfoForm>(key: K, value: TripInfoForm[K]) => void;
+  validateInfo: () => boolean;
+  goToStep2: () => void;
+  goToStep1: () => void;
+
+  addDestinationToDay: (dayIndex: number, dest: DayDestinationEntry) => void;
+  removeDestinationFromDay: (dayIndex: number, destId: string) => void;
+
   reset: () => void;
 }
 
-const initialValues: TripCreateSchema = {
+const initialInfo: TripInfoForm = {
   name: "",
   startDate: "",
   endDate: "",
-  destinationIds: [],
 };
 
-export const useTripCreateStore = create<TripCreateStore>((set, get) => ({
-  values: initialValues,
-  errors: {},
+function buildDays(startDate: string, endDate: string): TripDayEntry[] {
+  const days: TripDayEntry[] = [];
+  for (let d = new Date(startDate); d <= new Date(endDate); d.setUTCDate(d.getUTCDate() + 1)) {
+    days.push({ date: d.toISOString().slice(0, 10), destinations: [] });
+  }
+  return days;
+}
 
-  setField: (key, value) =>
+function validateInfoFields(info: TripInfoForm): TripInfoErrors {
+  const errors: TripInfoErrors = {};
+  if (!info.name.trim()) errors.name = "Trip name is required";
+  if (!info.startDate) errors.startDate = "Start date is required";
+  if (!info.endDate) errors.endDate = "End date is required";
+  else if (info.startDate && info.endDate <= info.startDate)
+    errors.endDate = "End date must be after start date";
+  return errors;
+}
+
+export const useTripCreateStore = create<TripCreateStore>((set, get) => ({
+  step: 1,
+  info: initialInfo,
+  infoErrors: {},
+  days: [],
+
+  setInfoField: (key, value) =>
     set((state) => ({
-      values: { ...state.values, [key]: value },
-      errors: { ...state.errors, [key]: undefined },
+      info: { ...state.info, [key]: value },
+      infoErrors: { ...state.infoErrors, [key]: undefined },
     })),
 
-  validate: () => {
-    const result = tripCreateSchema.safeParse(get().values);
-    if (result.success) {
-      set({ errors: {} });
-      return true;
-    }
-    const errors: FormErrors = {};
-    for (const issue of result.error.issues) {
-      const key = issue.path[0] as keyof TripCreateSchema;
-      if (key && !errors[key]) errors[key] = issue.message;
-    }
-    set({ errors });
-    return false;
+  validateInfo: () => {
+    const errors = validateInfoFields(get().info);
+    set({ infoErrors: errors });
+    return Object.keys(errors).length === 0;
   },
 
-  reset: () => set({ values: initialValues, errors: {} }),
+  goToStep2: () => {
+    const { info, validateInfo } = get();
+    if (!validateInfo()) return;
+    const days = buildDays(info.startDate, info.endDate);
+    set({ step: 2, days });
+  },
+
+  goToStep1: () => set({ step: 1 }),
+
+  addDestinationToDay: (dayIndex, dest) =>
+    set((state) => {
+      const days = state.days.map((d, i) =>
+        i === dayIndex
+          ? { ...d, destinations: [...d.destinations, dest] }
+          : d,
+      );
+      return { days };
+    }),
+
+  removeDestinationFromDay: (dayIndex, destId) =>
+    set((state) => {
+      const days = state.days.map((d, i) =>
+        i === dayIndex
+          ? { ...d, destinations: d.destinations.filter((dest) => dest.id !== destId) }
+          : d,
+      );
+      return { days };
+    }),
+
+  reset: () => set({ step: 1, info: initialInfo, infoErrors: {}, days: [] }),
 }));
+

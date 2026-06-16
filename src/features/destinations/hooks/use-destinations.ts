@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getDestinations } from "../api/destinations-api";
-import { getDestinationById } from "../api/destinations-api";
+import { getDestinations, getDestinationById } from "../api/destinations-api";
 import type { PaginationParams } from "@/types/PaginationParams";
 
 export const destinationKeys = {

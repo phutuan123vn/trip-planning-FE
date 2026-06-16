@@ -10,4 +10,4 @@ export { useInfiniteDestinations } from "./hooks/use-infinite-destinations";
 export { destinationCreateSchema } from "./schemas/destination-create-schema";
 export type { DestinationCreateInput } from "./schemas/destination-create-schema";
 export { useDestinationCreateStore } from "./stores/destination-create-store";
-export type { Destination } from "./types/destination";
+export type { Destination, DestinationDetails, DestinationSummary } from "./types/destination";

@@ -330,6 +330,7 @@ export const DestinationDashboard: React.FC = () => {
                 country={destination.country}
                 rating={destination.rating}
                 categories={destination.categories}
+                onClick={() => router.navigate({ to: "/destination/$destinationId", params: { destinationId: destination.id } })}
               />
             ))}
       </div>
