@@ -14,7 +14,7 @@ export const destinationCreateSchema = z.object({
     ),
   latitude: z.string(),
   longitude: z.string(),
-  images: z.array(z.string()),
+  imageIds: z.array(z.string()),
   categoryIds: z.array(z.string()).min(1, "Select at least one category"),
 });
 

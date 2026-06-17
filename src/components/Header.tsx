@@ -42,16 +42,16 @@ export const Header: FC = () => {
                   <Link to="/trip/your-trips">Your Trips</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/trip/create">Create New Trip</Link>
+                  <Link to="/me">Settings</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              {user?.role === Role.USER && (
+              {user?.role === Role.ADMIN && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuLabel>Admin</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                      <Link to="/category/manage">Create Destination</Link>
+                      <Link to="/category/manage">Manage Categories</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/destination/manage">Manage Destinations</Link>

@@ -25,7 +25,7 @@ const initialValues: DestinationCreateInput = {
   rating: "",
   latitude: "",
   longitude: "",
-  images: [""],
+  imageIds: [],
   categoryIds: [],
 };
 

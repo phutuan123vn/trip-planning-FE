@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { uniqueKey } from "@/lib/utils";
+import { renderImageUrl, uniqueKey } from "@/lib/utils";
 import { type ImageResponse } from "@/types/Image";
 import { MapPin, Star } from "lucide-react";
 import type { DestinationDetails } from "../types/destination";
@@ -46,7 +46,7 @@ export function DestinationCard({
           {displayImages.map((src, index) => (
             <CarouselItem key={uniqueKey(`image-${index}`)} className="pl-0">
               <img
-                src={`${src.url}?w=600`}
+                src={`${renderImageUrl(src.url)}?w=600`}
                 alt={`${name} - image ${index + 1}`}
                 className="w-full aspect-video object-cover rounded-t-xl h-48"
                 onError={(e) => {

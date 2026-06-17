@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDestinationDetail } from "@/features/destinations";
-import { uniqueKey } from "@/lib/utils";
+import { renderImageUrl, uniqueKey } from "@/lib/utils";
 import type { ImageResponse } from "@/types/Image";
 import {
   Clock3,
@@ -93,7 +93,7 @@ export function DestinationDetails({ destinationId }: DestinationDetailsProps) {
                     className="pl-0"
                   >
                     <img
-                      src={`${src.url}?w=1200`}
+                      src={`${renderImageUrl(src.url)}?w=1200`}
                       alt={`${destination.name} - image ${index + 1}`}
                       className="h-72 w-full rounded-xl object-cover sm:h-96 lg:h-108"
                       onError={(e) => {

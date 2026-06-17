@@ -10,29 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTrips } from "@/features/trip/hooks/use-trips";
+import { useIsAdmin } from "@/features/auth";
+import { useDestinations } from "@/features/destinations/hooks/use-destinations";
 import { uniqueKey } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { CalendarDays, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, MapPin, Pencil, Plus, Star } from "lucide-react";
 
 const PAGE_SIZE = 5;
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function tripDuration(start: string, end: string) {
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
-}
-
-export function YourTrips() {
+export function ManageDestinations() {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/trip/your-trips" });
+  const search = useSearch({ from: "/destination/manage" });
+  const isAdmin = useIsAdmin();
   const paginationParams = {
     page: search.page ? Number(search.page) : 1,
     pageSize: PAGE_SIZE,
@@ -44,27 +33,24 @@ export function YourTrips() {
     isPending,
     isError,
     refetch,
-  } = useTrips(paginationParams);
+  } = useDestinations(paginationParams);
 
-  function handleDelete(tripId: string) {
-    // TODO: integrate with delete API
-    console.log("Delete trip:", tripId);
-  }
-
-  const trips = response?.data?.length ? response.data : [];
+  const destinations = response?.data?.length ? response.data : [];
 
   return (
-    <div className="container max-w-5xl mx-auto space-y-6 p-4">
+    <div className="container max-w-6xl mx-auto space-y-6 p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Your Trips</h1>
-        <Button
-          onClick={() => navigate({ to: "/trip/create" })}
-          className="gap-1.5"
-        >
-          <Plus className="size-4" />
-          New Trip
-        </Button>
+        <h1 className="text-2xl font-semibold">Manage Destinations</h1>
+        {isAdmin && (
+          <Button
+            onClick={() => navigate({ to: "/destination/create" })}
+            className="gap-1.5"
+          >
+            <Plus className="size-4" />
+            New Destination
+          </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -79,19 +65,19 @@ export function YourTrips() {
         </div>
       ) : isError ? (
         <div className="flex items-center justify-center h-48 text-muted-foreground">
-          Failed to load trips.
+          Failed to load destinations.
           <Button variant="link" onClick={() => refetch()} className="ml-2">
             Retry
           </Button>
         </div>
-      ) : trips.length === 0 ? (
+      ) : destinations.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 gap-3 text-muted-foreground">
-          <p>No trips yet. Start planning your next adventure!</p>
+          <p>No destinations yet. Add your first one!</p>
           <Button
             variant="outline"
-            onClick={() => navigate({ to: "/trip/create" })}
+            onClick={() => navigate({ to: "/destination/create" })}
           >
-            Create your first trip
+            Create your first destination
           </Button>
         </div>
       ) : (
@@ -100,44 +86,46 @@ export function YourTrips() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Trip Name</TableHead>
-                  <TableHead className="w-[280px]">Dates</TableHead>
-                  <TableHead className="w-[100px]">Duration</TableHead>
-                  <TableHead className="w-[150px]">Destinations</TableHead>
-                  <TableHead className="w-[120px] text-right">
+                  <TableHead className="w-50">Name</TableHead>
+                  <TableHead className="w-50">Location</TableHead>
+                  <TableHead className="w-25">Rating</TableHead>
+                  <TableHead className="w-62.5">Categories</TableHead>
+                  <TableHead className="w-30 text-right">
                     Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trips.map((trip) => (
-                  <TableRow key={uniqueKey(`trip-${trip.id}`)}>
+                {destinations.map((destination) => (
+                  <TableRow key={uniqueKey(`destination-${destination.id}`)}>
                     <TableCell className="font-medium text-left">
-                      {trip.name}
+                      {destination.name}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <CalendarDays className="size-3.5 shrink-0" />
+                        <MapPin className="size-3.5 shrink-0" />
                         <span>
-                          {formatDate(trip.startDate)} –{" "}
-                          {formatDate(trip.endDate)}
+                          {destination.city}, {destination.country}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-left">
-                      <Badge variant="secondary" className="text-left">
-                        {tripDuration(trip.startDate, trip.endDate)} days
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm">{destination.rating.toFixed(1)}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="text-sm">
-                          {trip.destinations.length}{" "}
-                          {trip.destinations.length === 1
-                            ? "destination"
-                            : "destinations"}
-                        </span>
+                      <div className="flex flex-wrap gap-1">
+                        {destination.categories.map((category) => (
+                          <Badge
+                            key={uniqueKey(`cat-${category.id}`)}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {category.name}
+                          </Badge>
+                        ))}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -147,21 +135,27 @@ export function YourTrips() {
                           size="icon"
                           onClick={() =>
                             navigate({
-                              to: "/trip/update",
-                              search: { id: trip.id },
+                              to: "/destination/$destinationId",
+                              params: { destinationId: destination.id },
                             })
                           }
                         >
-                          <Pencil className="size-3.5" />
+                          <Eye className="size-3.5" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(trip.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              navigate({
+                                to: "/destination/update",
+                                search: { id: destination.id },
+                              })
+                            }
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -175,7 +169,7 @@ export function YourTrips() {
             pagination={response.pagination}
             onPageChange={(newPage) =>
               navigate({
-                to: "/trip/your-trips",
+                to: "/destination/manage",
                 search: { page: newPage },
               })
             }

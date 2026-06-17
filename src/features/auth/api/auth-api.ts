@@ -5,7 +5,9 @@ import type {
   LoginResponse,
   RegisterPayload,
   VerifyEmailPayload,
+  User,
 } from "../types/auth";
+import type { UpdateProfileDto, ChangePasswordDto } from "../schemas/auth-schema";
 
 const API_PATH = "/auth";
 
@@ -21,3 +23,9 @@ export const getCurrentUser = () =>
 
 export const verifyEmail = (payload: VerifyEmailPayload) =>
   api.post(`${API_PATH}/verify-email`, payload);
+
+export const updateProfile = (payload: UpdateProfileDto) =>
+  api.patch<{ data: User }>(`${API_PATH}/me`, payload).then((r) => r.data.data);
+
+export const changePassword = (payload: ChangePasswordDto) =>
+  api.post(`${API_PATH}/change-password`, payload);
